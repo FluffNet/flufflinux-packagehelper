@@ -1,7 +1,7 @@
 # Fluff Linux Package Helper
 
-Fluff Linux Package Helper explains why a Debian package cannot be installed
-directly on Fluff Linux and points users to Discover or `pacman`.
+Fluff Linux Package Helper explains why Debian and RPM packages cannot be
+installed directly on Fluff Linux and points users to Discover or `pacman`.
 
 The helper:
 

@@ -9,14 +9,28 @@ pub struct Translation {
     pub rtl: bool,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PackageFormat {
+    Debian,
+    Rpm,
+}
+
 impl Translation {
-    pub fn message(&self, file: &str) -> String {
+    pub fn message(&self, file: &str, format: PackageFormat) -> String {
         // Isolates mixed-direction filenames inside Hebrew, Arabic, and Persian text.
         let isolated_file = format!("\u{2068}{file}\u{2069}");
+        let package_text = |text: &str| match format {
+            PackageFormat::Debian => text.to_owned(),
+            PackageFormat::Rpm => text
+                .replace("Debiana", "RPM")
+                .replace("Debianu", "RPM")
+                .replace("Debian", "RPM"),
+        };
+
         format!(
             "{}\n\n{}\n\n{}",
-            self.file_is_package.replace("{file}", &isolated_file),
-            self.incompatibility,
+            package_text(self.file_is_package).replace("{file}", &isolated_file),
+            package_text(self.incompatibility),
             self.alternative
         )
     }
@@ -399,7 +413,7 @@ tr!(
 
 #[cfg(test)]
 mod tests {
-    use super::{language, translation};
+    use super::{PackageFormat, language, translation};
 
     #[test]
     fn normalizes_kde_locale_names() {
@@ -415,5 +429,15 @@ mod tests {
         assert!(translation("ar_DZ").rtl);
         assert!(translation("fa_IR").rtl);
         assert!(!translation("fr_FR").rtl);
+    }
+
+    #[test]
+    fn localizes_rpm_without_translating_product_names() {
+        for locale in ["he_IL", "fr_FR", "ar_EG", "ru_RU", "pl_PL", "fi_FI"] {
+            let message = translation(locale).message("example.rpm", PackageFormat::Rpm);
+            assert!(message.contains("RPM"));
+            assert!(!message.contains("Debian"));
+            assert!(message.contains("Discover"));
+        }
     }
 }
