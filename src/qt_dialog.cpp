@@ -27,16 +27,24 @@ extern "C" int flufflinux_show_information_dialog(
 
     QGuiApplication::setDesktopFileName(QStringLiteral("flufflinux-packagehelper"));
     application.setApplicationDisplayName(from_utf8(title));
+    const QIcon application_icon =
+        QIcon::fromTheme(QStringLiteral("package"));
+    application.setWindowIcon(application_icon);
     application.setLayoutDirection(
         right_to_left ? Qt::RightToLeft : Qt::LeftToRight);
 
     QDialog dialog;
     dialog.setAttribute(Qt::WA_DeleteOnClose, false);
+    dialog.setWindowFlags(
+        Qt::Dialog |
+        Qt::CustomizeWindowHint |
+        Qt::WindowTitleHint |
+        Qt::WindowCloseButtonHint |
+        Qt::WindowStaysOnTopHint);
     dialog.setWindowTitle(from_utf8(title));
-    dialog.setWindowIcon(QIcon::fromTheme(QStringLiteral("dialog-information")));
+    dialog.setWindowIcon(application_icon);
     dialog.setLayoutDirection(
         right_to_left ? Qt::RightToLeft : Qt::LeftToRight);
-    dialog.setMinimumWidth(520);
 
     auto *outer_layout = new QVBoxLayout(&dialog);
     auto *content_layout = new QHBoxLayout;
@@ -54,7 +62,7 @@ extern "C" int flufflinux_show_information_dialog(
     text->setTextInteractionFlags(Qt::TextSelectableByMouse);
     text->setAlignment(
         (right_to_left ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignTop);
-    text->setMinimumWidth(390);
+    text->setFixedWidth(430);
 
     content_layout->addWidget(icon);
     content_layout->addWidget(text, 1);
@@ -66,6 +74,9 @@ extern "C" int flufflinux_show_information_dialog(
     accept->setDefault(true);
     QObject::connect(accept, &QPushButton::clicked, &dialog, &QDialog::accept);
     outer_layout->addWidget(buttons);
+
+    dialog.adjustSize();
+    dialog.setFixedSize(dialog.size());
 
     return dialog.exec();
 }

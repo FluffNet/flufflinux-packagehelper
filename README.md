@@ -9,6 +9,8 @@ The helper:
 - displays its own in-process Qt 6 dialog without KDialog;
 - follows the active KDE/Qt color, widget, font, and icon themes;
 - uses the `dialog-information` icon from the KDE icon theme;
+- uses the desktop entry's `package` icon for the application window;
+- stays on top as a fixed-size, movable dialog without minimize or maximize;
 - supports right-to-left dialog layout and bidirectional filenames;
 - selects its language from `LC_ALL`, `LANGUAGE`, `LC_MESSAGES`, or `LANG`.
 
