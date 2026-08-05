@@ -18,18 +18,29 @@ German, Greek, Hebrew, Hungarian, Indonesian, Italian, Japanese, Korean,
 Norwegian Bokmål, Persian, Polish, Portuguese, Brazilian Portuguese, Romanian,
 Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
 
-## Build and package
+## Compile
 
-These commands assume they are running in the package's fakeroot with
-`base-devel`, Rust, `qt6-base`, and `file` already available. They do not use
-`sudo`.
+Compilation requires Rust, `base-devel`, `qt6-base`, and `file`.
+
+### Fakeroot build
+
+When compiling inside the fakeroot used by the Fluff Linux packaging tools:
 
 ```sh
 cargo build --release --locked
-install -Dm755 target/release/flufflinux-packagehelper \
-  "${pkgdir}/usr/bin/flufflinux-packagehelper"
-install -Dm644 flufflinux-packagehelper.desktop \
-  "${pkgdir}/usr/share/applications/flufflinux-packagehelper.desktop"
 ```
 
-The runtime dependencies are Qt 6 Widgets and `file`.
+The packaging tools are responsible for staging the compiled binary and
+`flufflinux-packagehelper.desktop`.
+
+### Installation build
+
+To compile a release build before installation:
+
+```sh
+cargo build --release --locked
+```
+
+The resulting executable is
+`target/release/flufflinux-packagehelper`. The runtime dependencies are Qt 6
+Widgets and `file`.
