@@ -1,0 +1,8 @@
+[package]
+name = "flufflinux-packagehelper"
+version = "0.1.0"
+edition = "2024"
+authors = ["FluffNet LLC"]
+
+[dependencies]
+dialog = "0.3.0"
