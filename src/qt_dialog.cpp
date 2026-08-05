@@ -1,11 +1,13 @@
 #include <QApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QFontMetrics>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
 #include <QPushButton>
+#include <QScreen>
 #include <QString>
 #include <QVBoxLayout>
 
@@ -62,7 +64,19 @@ extern "C" int flufflinux_show_information_dialog(
     text->setTextInteractionFlags(Qt::TextSelectableByMouse);
     text->setAlignment(
         (right_to_left ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignTop);
-    text->setFixedWidth(430);
+
+    const QRect available_screen =
+        application.primaryScreen()->availableGeometry();
+    const int maximum_text_width =
+        qMax(430, qMin(760, available_screen.width() - 180));
+    const QFontMetrics text_metrics(text->font());
+    const QRect measured_text = text_metrics.boundingRect(
+        QRect(0, 0, maximum_text_width, QWIDGETSIZE_MAX),
+        Qt::TextWordWrap | Qt::TextWrapAnywhere,
+        text->text());
+    text->setFixedSize(
+        qMax(430, measured_text.width() + 2),
+        measured_text.height() + 4);
 
     content_layout->addWidget(icon);
     content_layout->addWidget(text, 1);

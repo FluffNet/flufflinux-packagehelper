@@ -11,6 +11,8 @@ The helper:
 - uses the `dialog-information` icon from the KDE icon theme;
 - uses the desktop entry's `package` icon for the application window;
 - stays on top as a fixed-size, movable dialog without minimize or maximize;
+- measures and wraps localized text before sizing so translated content is not
+  cut off;
 - supports right-to-left dialog layout and bidirectional filenames;
 - selects its language from `LC_ALL`, `LANGUAGE`, `LC_MESSAGES`, or `LANG`.
 
