@@ -24,7 +24,9 @@ Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
 
 ## Compile
 
-Compilation requires Rust, `base-devel`, `qt6-base`, and `file`.
+Compilation requires Rust, `base-devel`, `pkgconf`, `qt6-base`, and `file`.
+The project has no Cargo dependencies: its Qt bridge is compiled with the
+system C++ compiler and linked directly against the system Qt 6 libraries.
 
 ### Fakeroot build
 

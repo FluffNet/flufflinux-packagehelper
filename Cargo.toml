@@ -4,7 +4,3 @@ version = "0.1.0"
 edition = "2024"
 authors = ["FluffNet LLC"]
 description = "Content-aware package helper for Fluff Linux"
-
-[build-dependencies]
-cc = "1.2"
-pkg-config = "0.3"
