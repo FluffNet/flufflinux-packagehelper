@@ -27,7 +27,7 @@ Compilation requires Rust, `base-devel`, `qt6-base`, and `file`.
 When compiling inside the fakeroot used by the Fluff Linux packaging tools:
 
 ```sh
-cargo build --release --locked
+cargo build --release
 ```
 
 The packaging tools are responsible for staging the compiled binary and
@@ -38,7 +38,7 @@ The packaging tools are responsible for staging the compiled binary and
 To compile a release build before installation:
 
 ```sh
-cargo build --release --locked
+cargo build --release
 ```
 
 The resulting executable is
