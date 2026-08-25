@@ -1,6 +1,6 @@
 [package]
 name = "flufflinux-packagehelper"
-version = "0.1.0"
+version = "2026.9.1"
 edition = "2024"
 authors = ["FluffNet LLC"]
 description = "Content-aware package helper for Fluff Linux"

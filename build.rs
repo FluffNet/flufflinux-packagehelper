@@ -2,6 +2,7 @@ use std::env;
 use std::path::PathBuf;
 use std::process::{Command, Output};
 
+// Run one system command and report a clear build error
 fn run(command: &mut Command, description: &str) -> Output {
     let output = command
         .output()
@@ -17,6 +18,7 @@ fn run(command: &mut Command, description: &str) -> Output {
     output
 }
 
+// Read Qt compiler and linker settings from the installed system
 fn pkg_config(arguments: &[&str]) -> Vec<String> {
     let output = run(
         Command::new("pkg-config").args(arguments).arg("Qt6Widgets"),
@@ -38,6 +40,7 @@ fn main() {
     let object_file = output_directory.join("qt_dialog.o");
     let bridge_library = output_directory.join("libflufflinux_qt_dialog.a");
 
+    // Compile the small Qt bridge with the system compiler
     let mut compiler = Command::new("c++");
     compiler
         .args(["-std=c++17", "-fPIC", "-c", "src/qt_dialog.cpp", "-o"])
@@ -45,6 +48,7 @@ fn main() {
         .args(pkg_config(&["--cflags"]));
     run(&mut compiler, "the system C++ compiler");
 
+    // Store the bridge in a static library for the final Rust link
     let mut archiver = Command::new("ar");
     archiver
         .args(["crs"])
@@ -59,6 +63,7 @@ fn main() {
     println!("cargo:rustc-link-lib=static=flufflinux_qt_dialog");
     println!("cargo:rustc-link-lib=stdc++");
 
+    // Link directly to the Qt libraries provided by Fluff Linux
     for flag in pkg_config(&["--libs"]) {
         if let Some(path) = flag.strip_prefix("-L") {
             println!("cargo:rustc-link-search=native={path}");
