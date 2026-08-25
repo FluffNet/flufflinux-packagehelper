@@ -1,0 +1,125 @@
+PACKAGEHELPER_DESKTOP='flufflinux-packagehelper.desktop'
+
+# Keep all supported package types assigned to PackageHelper
+ensure_packagehelper_defaults() {
+    file=$1
+    temporary="${file}.flufflinux-packagehelper.$$"
+
+    awk -v helper="$PACKAGEHELPER_DESKTOP" '
+        BEGIN {
+            count = split("application/vnd.debian.binary-package application/x-deb application/x-debian-package application/x-debian-packages application/x-rpm application/x-redhat-package-manager", types, " ")
+        }
+
+        function is_package_type(key, i) {
+            for (i = 1; i <= count; i++) {
+                if (types[i] == key) {
+                    return 1
+                }
+            }
+            return 0
+        }
+
+        function emit_missing(i, key) {
+            for (i = 1; i <= count; i++) {
+                key = types[i]
+                if (!seen[key]) {
+                    print key "=" helper ";"
+                    seen[key] = 1
+                }
+            }
+        }
+
+        /^\[/ {
+            if (in_defaults) {
+                emit_missing()
+            }
+
+            in_defaults = ($0 == "[Default Applications]")
+            if (in_defaults) {
+                found_defaults = 1
+            }
+
+            print
+            next
+        }
+
+        in_defaults && index($0, "=") > 0 {
+            key = substr($0, 1, index($0, "=") - 1)
+            if (is_package_type(key)) {
+                if (seen[key]) {
+                    next
+                }
+
+                value = substr($0, index($0, "=") + 1)
+                gsub(/fluff-packagehelper\.desktop/, helper, value)
+
+                result = helper ";"
+                applications_count = split(value, applications, ";")
+                for (i = 1; i <= applications_count; i++) {
+                    application = applications[i]
+                    gsub(/^[[:space:]]+|[[:space:]]+$/, "", application)
+                    if (application != "" && application != helper) {
+                        result = result application ";"
+                    }
+                }
+
+                print key "=" result
+                seen[key] = 1
+                next
+            }
+        }
+
+        {
+            gsub(/fluff-packagehelper\.desktop/, helper)
+            print
+        }
+
+        END {
+            if (in_defaults) {
+                emit_missing()
+            } else if (!found_defaults) {
+                if (NR > 0) {
+                    print ""
+                }
+                print "[Default Applications]"
+                emit_missing()
+            }
+        }
+    ' "$file" > "$temporary" || {
+        rm -f "$temporary"
+        return 1
+    }
+
+    if ! cat "$temporary" > "$file"; then
+        rm -f "$temporary"
+        return 1
+    fi
+
+    rm -f "$temporary"
+}
+
+# Remove files from the old package name
+pre_install() {
+    rm -f /usr/bin/fluff-packagehelper
+    rm -f /usr/share/applications/fluff-packagehelper.desktop
+}
+
+# Apply the same cleanup during upgrades
+pre_upgrade() {
+    pre_install
+}
+
+# Update existing and future user defaults after installation
+post_install() {
+    for file in /etc/skel/.config/mimeapps.list /home/*/.config/mimeapps.list; do
+        [ -f "$file" ] || continue
+        ensure_packagehelper_defaults "$file"
+    done
+
+    update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+}
+
+# Apply the same defaults after upgrades
+post_upgrade() {
+    post_install
+}
