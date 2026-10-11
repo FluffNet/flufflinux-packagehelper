@@ -3,10 +3,10 @@
 pkgname = flufflinux-packagehelper
 pkgbase = flufflinux-packagehelper
 xdata = pkgtype=pkg
-pkgver = 2026.09-1
+pkgver = 2026.10-1
 pkgdesc = "Fluff Linux helper for foreign package files"
 url = https://flufflinux.com
-builddate = 1787677691
+builddate = 1791755363
 packager = FluffNet LLC
 size = 615707
 arch = x86_64

@@ -59,23 +59,41 @@ pub fn system_locale() -> String {
 }
 
 fn language(locale: &str) -> String {
-    locale
-        .split(':')
-        .next()
-        .unwrap_or(locale)
+    let first = locale.split(':').next().unwrap_or(locale);
+    let (name, modifier) = first.split_once('@').unwrap_or((first, ""));
+    let name = name
         .split('.')
         .next()
-        .unwrap_or(locale)
-        .split('@')
-        .next()
-        .unwrap_or(locale)
+        .unwrap_or(name)
         .replace('-', "_")
-        .to_ascii_lowercase()
+        .to_ascii_lowercase();
+    match (name.split('_').next().unwrap_or(""), modifier) {
+        ("sr", "latin") => "sr_latn".to_owned(),
+        ("ca", "valencia") => "ca_valencia".to_owned(),
+        _ => name,
+    }
 }
 
 pub fn translation(locale: &str) -> &'static Translation {
     let locale = language(locale);
+    for (script, catalog) in [
+        ("sr_latn", &SR_LATN),
+        ("pa_arab", &PA_ARAB),
+        ("pa_guru", &PA),
+        ("zh_hans", &ZH_CN),
+        ("zh_hant", &ZH_TW),
+    ] {
+        if locale == script || locale.starts_with(&format!("{script}_")) {
+            return catalog;
+        }
+    }
     match locale.as_str() {
+        "sr_latn" | "sr_latn_rs" | "sr_latn_me" => &SR_LATN,
+        "ca_valencia" => &CA_VALENCIA,
+        "pa_arab" | "pa_pk" | "pa_arab_pk" => &PA_ARAB,
+        "pa_guru" | "pa_guru_in" => &PA,
+        "zh_hans_cn" | "zh_hans_sg" | "zh_sg" => &ZH_CN,
+        "zh_hant_tw" | "zh_hant_hk" => &ZH_TW,
         "pt_br" => &PT_BR,
         "zh_cn" | "zh_hans" => &ZH_CN,
         "zh_tw" | "zh_hant" | "zh_hk" => &ZH_TW,
@@ -85,6 +103,7 @@ pub fn translation(locale: &str) -> &'static Translation {
             "fr" => &FR,
             "ru" => &RU,
             "de" => &DE,
+            "ss" => &DE,
             "es" => &ES,
             "et" => &ET,
             "ga" => &GA,
@@ -117,6 +136,63 @@ pub fn translation(locale: &str) -> &'static Translation {
             "id" => &ID,
             "vi" => &VI,
             "fa" => &FA,
+            "bn" => &BN,
+            "fil" | "tl" => &FIL,
+            "hi" => &HI,
+            "ms" => &MS,
+            "sr" => &SR,
+            "sw" => &SW,
+            "th" => &TH,
+            "ur" => &UR,
+            "af" => &AF,
+            "sq" => &SQ,
+            "am" => &AM,
+            "hy" => &HY,
+            "as" => &AS,
+            "az" => &AZ,
+            "be" => &BE,
+            "bs" => &BS,
+            "my" => &MY,
+            "gl" => &GL,
+            "ka" => &KA,
+            "gu" => &GU,
+            "ha" => &HA,
+            "is" => &IS,
+            "ig" => &IG,
+            "kn" => &KN,
+            "kk" => &KK,
+            "km" => &KM,
+            "kok" => &KOK,
+            "ku" => &KU,
+            "lo" => &LO,
+            "lb" => &LB,
+            "mk" => &MK,
+            "ml" => &ML,
+            "mi" => &MI,
+            "mr" => &MR,
+            "mn" => &MN,
+            "ne" => &NE,
+            "nn" => &NN,
+            "or" => &OR,
+            "om" => &OM,
+            "ps" => &PS,
+            "pa_arab" => &PA_ARAB,
+            "pa" => &PA,
+            "quz" => &QUZ,
+            "gd" => &GD,
+            "sr_latn" => &SR_LATN,
+            "si" => &SI,
+            "so" => &SO,
+            "ta" => &TA,
+            "tt" => &TT,
+            "te" => &TE,
+            "ug" => &UG,
+            "uz" => &UZ,
+            "ca_valencia" => &CA_VALENCIA,
+            "cy" => &CY,
+            "xh" => &XH,
+            "yo" => &YO,
+            "zu" => &ZU,
             _ => &EN,
         },
     }
@@ -148,8 +224,8 @@ tr!(
     HE,
     "מסייע היישומים של Fluff Linux",
     "{file} הוא קובץ חבילה מסוג Debian.",
-    "קבצים מסוג זה אינם תואמים ל Fluff Linux מכיוון ש Fluff Linux מבוססת על Arch ומשתמשת במערכת חבילות אחרת.",
-    "ניתן לחפש את האפליקציה הרצויה ב״מרכז האפליקציות״ או לחפש באינטרנט גירסה אחרת שתואמת ל Fluff Linux.",
+    "קבצים מסוג זה אינם תואמים לFluff Linux מכיוון שFluff Linux מבוססת על Arch ומשתמשת במערכת חבילות אחרת.",
+    "ניתן לחפש את האפליקציה הרצויה ב״מרכז האפליקציות״ או לחפש באינטרנט גירסה אחרת שתואמת לFluff Linux.",
     "אישור",
     true
 );
@@ -496,6 +572,81 @@ tr!(
     true
 );
 
+tr!(
+    BN,
+    "Fluff Linux প্যাকেজ সহায়ক",
+    "“{file}” ফাইলটি একটি Debian প্যাকেজ।",
+    "Debian প্যাকেজ Fluff Linux-এর সঙ্গে সামঞ্জস্যপূর্ণ নয়, কারণ Fluff Linux Arch-এর ওপর ভিত্তি করে তৈরি এবং ভিন্ন প্যাকেজ ব্যবস্থা ব্যবহার করে।",
+    "Fluff Linux-এর সঙ্গে সামঞ্জস্যপূর্ণ সংস্করণ ইনস্টল করতে App Center (Discover) ব্যবহার করুন অথবা অনলাইনে খুঁজুন।",
+    "ঠিক আছে",
+    false
+);
+tr!(
+    FIL,
+    "Katulong sa mga Package ng Fluff Linux",
+    "Ang file na “{file}” ay isang Debian package.",
+    "Hindi compatible sa Fluff Linux ang mga Debian package dahil nakabatay sa Arch ang Fluff Linux at gumagamit ito ng ibang sistema ng mga package.",
+    "Gamitin ang App Center (Discover) o maghanap online para mag-install ng bersyong compatible sa Fluff Linux.",
+    "OK",
+    false
+);
+tr!(
+    HI,
+    "Fluff Linux पैकेज सहायक",
+    "“{file}” फ़ाइल एक Debian पैकेज है।",
+    "Debian पैकेज Fluff Linux के साथ संगत नहीं हैं, क्योंकि Fluff Linux Arch पर आधारित है और एक अलग पैकेज प्रणाली का उपयोग करता है।",
+    "Fluff Linux के साथ संगत संस्करण इंस्टॉल करने के लिए App Center (Discover) का उपयोग करें या ऑनलाइन खोजें।",
+    "ठीक है",
+    false
+);
+tr!(
+    MS,
+    "Pembantu Pakej Fluff Linux",
+    "Fail “{file}” ialah pakej Debian.",
+    "Pakej Debian tidak serasi dengan Fluff Linux kerana Fluff Linux berasaskan Arch dan menggunakan sistem pakej yang berbeza.",
+    "Gunakan App Center (Discover) atau cari dalam talian untuk memasang versi yang serasi dengan Fluff Linux.",
+    "OK",
+    false
+);
+tr!(
+    SR,
+    "Помоћник за пакете Fluff Linux",
+    "Датотека „{file}“ је Debian пакет.",
+    "Debian пакети нису компатибилни са системом Fluff Linux јер је Fluff Linux заснован на систему Arch и користи другачији систем пакета.",
+    "Користите App Center (Discover) или потражите на интернету верзију компатибилну са системом Fluff Linux и инсталирајте је.",
+    "У реду",
+    false
+);
+tr!(
+    SW,
+    "Msaidizi wa Vifurushi wa Fluff Linux",
+    "Faili “{file}” ni kifurushi cha Debian.",
+    "Vifurushi vya Debian havioani na Fluff Linux kwa sababu Fluff Linux inategemea Arch na hutumia mfumo tofauti wa vifurushi.",
+    "Tumia App Center (Discover) au tafuta mtandaoni ili kusakinisha toleo linalooana na Fluff Linux.",
+    "Sawa",
+    false
+);
+tr!(
+    TH,
+    "ตัวช่วยแพ็กเกจ Fluff Linux",
+    "ไฟล์ “{file}” เป็นแพ็กเกจ Debian",
+    "แพ็กเกจ Debian ไม่เข้ากันกับ Fluff Linux เนื่องจาก Fluff Linux พัฒนาจาก Arch และใช้ระบบแพ็กเกจที่แตกต่างกัน",
+    "ใช้ App Center (Discover) หรือค้นหาทางออนไลน์เพื่อติดตั้งเวอร์ชันที่เข้ากันกับ Fluff Linux",
+    "ตกลง",
+    false
+);
+tr!(
+    UR,
+    "Fluff Linux پیکیج معاون",
+    "{file} Debian قسم کی پیکیج فائل ہے۔",
+    "اس قسم کی فائلیں Fluff Linux کے ساتھ مطابقت نہیں رکھتیں کیونکہ Fluff Linux، Arch پر مبنی ہے اور ایک مختلف پیکیج نظام استعمال کرتا ہے۔",
+    "آپ مطلوبہ ایپ «ایپ مرکز» میں تلاش کر سکتے ہیں یا انٹرنیٹ پر کوئی دوسرا ورژن تلاش کر سکتے ہیں جو Fluff Linux کے ساتھ مطابقت رکھتا ہو۔",
+    "ٹھیک ہے",
+    true
+);
+
+include!("expanded_translations.rs");
+
 #[cfg(test)]
 mod tests {
     use super::{PackageFormat, language, translation};
@@ -509,6 +660,7 @@ mod tests {
 
     #[test]
     fn enables_rtl_for_rtl_languages() {
+        assert!(translation("ur_PK").rtl);
         assert!(translation("he_IL").rtl);
         assert!(translation("ar_EG").rtl);
         assert!(translation("ar_DZ").rtl);
@@ -582,11 +734,30 @@ mod tests {
     }
 
     #[test]
-    fn supports_every_flufflinux_update_locale() {
-        for locale in [
-            "ar", "bg", "cs", "da", "de", "el", "es", "et", "fi", "fr", "ga", "he", "hr", "hu",
-            "it", "ja", "lt", "lv", "mt", "nl", "pl", "pt", "ro", "ru", "sk", "sl", "sv",
-        ] {
+    fn supports_every_project_locale() {
+        let inventory = include_str!("../tests/languages.tsv");
+        assert_eq!(inventory.lines().count(), 96);
+        for row in inventory.lines() {
+            let fields: Vec<_> = row.split('\t').collect();
+            let locale = fields[0];
+            assert!(
+                std::ptr::eq(translation(locale), translation(fields[1])),
+                "Wrong default locale for {locale}"
+            );
+            assert_eq!(
+                translation(locale).rtl,
+                fields[2] == "RTL",
+                "Wrong direction for {locale}"
+            );
+            if locale != "en" {
+                assert!(
+                    !std::ptr::eq(translation(locale), translation("en")),
+                    "English fallback for {locale}"
+                );
+                let desktop = include_str!("../flufflinux-packagehelper.desktop");
+                assert!(desktop.contains(&format!("Name[{locale}]=")));
+                assert!(desktop.contains(&format!("Comment[{locale}]=")));
+            }
             let debian = translation(locale).message("example.deb", PackageFormat::Debian);
             let rpm = translation(locale).message("example.rpm", PackageFormat::Rpm);
 
@@ -602,6 +773,41 @@ mod tests {
                 assert!(debian.contains("App Center (Discover)"));
                 assert!(rpm.contains("App Center (Discover)"));
             }
+        }
+    }
+
+    #[test]
+    fn preserves_regional_scripts_and_modifiers() {
+        for row in include_str!("../tests/regions.tsv").lines() {
+            let (locale, code) = row.split_once('\t').unwrap();
+            let expected = if locale == "pt_BR.UTF-8" {
+                "pt_BR"
+            } else {
+                code
+            };
+            assert!(
+                std::ptr::eq(translation(locale), translation(expected)),
+                "Incorrect catalog for {locale}"
+            );
+        }
+        assert!(!std::ptr::eq(
+            translation("sr_RS.UTF-8@latin"),
+            translation("sr")
+        ));
+        assert!(!std::ptr::eq(
+            translation("pa_PK.UTF-8"),
+            translation("pa_IN.UTF-8")
+        ));
+        assert!(!std::ptr::eq(
+            translation("zh_Hant_HK"),
+            translation("zh_Hans_CN")
+        ));
+        for code in ["ar", "he", "fa", "ur", "ps", "ug", "pa_Arab"] {
+            let message = translation(code).message("/tmp/example.rpm", PackageFormat::Rpm);
+            assert_eq!(message.lines().count(), 5);
+            assert!(message.starts_with('\u{200f}'));
+            assert!(message.contains("\u{2066}example.rpm\u{2069}"));
+            assert!(!message.contains("/tmp/"));
         }
     }
 }
